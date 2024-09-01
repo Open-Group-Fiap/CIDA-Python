@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+azure-storage-blob
+PyPDF2
+python-docx
+openpyxl
+httpx
+
