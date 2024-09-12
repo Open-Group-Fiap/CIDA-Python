@@ -1,22 +1,21 @@
-from typing import Annotated, Dict, List
+from typing import Dict, List
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
 from fastapi import FastAPI
-from azure.storage.blob import BlobClient, BlobServiceClient, download_blob_from_url
-from azure.identity import DefaultAzureCredential
+from azure.storage.blob import BlobClient, BlobServiceClient
 from pydantic import BaseModel
 from io import BytesIO
+import google.generativeai as genai
 import os
 import dotenv
 from azure.ai.inference import ChatCompletionsClient 
 dotenv.load_dotenv()
 client = inference_client = ChatCompletionsClient(endpoint=os.getenv("AZURE_OPENAI_ENDPOINT") or "", 
-                                                  credential=DefaultAzureCredential(),
-                                                  headers={'api-key': os.getenv("AZURE_OPENAI_API_KEY")})
+                                                  credential=AzureKeyCredential(os.getenv("AZURE_OPENAI_API_KEY") or "")
+                                                  )
 app = FastAPI()
 
 account_url="https://cidastore.blob.core.windows.net"
-credential = DefaultAzureCredential()
 
 class AnalyzeRequest(BaseModel):
     container: str
@@ -35,6 +34,8 @@ def process_file(file: bytes, file_name: str):
         text = extract_text_from_xlsx(file_data)
     elif file_name.endswith(".csv"):
         text = extract_text_from_csv(file_data)
+    elif file_name.endswith(".txt"):
+        text = file_data.read().decode('utf-8')
     else:
         raise ValueError("Unsupported file type")
     return text
@@ -99,7 +100,13 @@ async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
         UserMessage(content=text)
     ])
     text = response.choices[0].message.content
-    return AnalyzeResponse(insight=text)
+    gemini_prompt = "Você é a CIDA, Consulting Insights With Deep Analysis, você tem como função analisar relatorios empresariais e ajudar as empresas gerando insights, analises e recomendações com base nos dados apresentados. Com base nesse relatorio empresarial, analise os dados e a situação da empresa e gere insights destacando os dados mais relevantes, pontos fortes e pontos mais fracos:"
+    gemini_prompt += "\n\n"
+    gemini_prompt += text
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    response = model.generate_content(gemini_prompt)
+    return AnalyzeResponse(insight=response.text)
 
 @app.get("/get-all-blobs/{container}")
 async def get_all_blobs(container: str) -> Dict[str, str]:

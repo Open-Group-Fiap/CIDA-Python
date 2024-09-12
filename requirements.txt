@@ -2,6 +2,7 @@ fastapi
 uvicorn
 azure-storage-blob
 azure-identity
+azure-core
 PyPDF2
 docx2txt
 openpyxl
@@ -9,3 +10,4 @@ httpx
 pydantic
 python-dotenv
 azure-ai-inference
+google-generativeai
