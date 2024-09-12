@@ -16,20 +16,21 @@ class AnalyzeResponse(BaseModel):
     insight: str
 
 def process_file(file: bytes, file_name: str):
-    print(file)
     file_data = BytesIO(file)
     text = ""
     if file_name.endswith(".pdf"):
         text = extract_text_from_pdf(file_data)
-    elif file_name.endswith(".docx"):
+    elif file_name.endswith(".docx") or file_name.endswith(".doc"):
         text = extract_text_from_docx(file_data)
     elif file_name.endswith(".xlsx"):
         text = extract_text_from_xlsx(file_data)
+    elif file_name.endswith(".csv"):
+        text = extract_text_from_csv(file_data)
     else:
         raise ValueError("Unsupported file type")
     return text
 
-def extract_text_from_pdf(file_data):
+def extract_text_from_pdf(file_data: BytesIO):
     from PyPDF2 import PdfReader
     pdfReader = PdfReader(file_data)
     text = ""
@@ -37,15 +38,12 @@ def extract_text_from_pdf(file_data):
         text += page.extract_text()
     return text
 
-def extract_text_from_docx(file_data):
-    from docx import Document
-    document = Document(file_data)
-    text = ""
-    for paragraph in document.paragraphs:
-        text += paragraph.text + " "
-    return text
+def extract_text_from_docx(file_data: BytesIO):
+    from docx2txt import process
+    document = process(file_data)
+    return document
 
-def extract_text_from_xlsx(file_data):
+def extract_text_from_xlsx(file_data: BytesIO):
     from openpyxl import load_workbook
     loader = load_workbook(file_data)
     text = ""
@@ -53,6 +51,14 @@ def extract_text_from_xlsx(file_data):
         for row in sheet.iter_rows(values_only=True):
             text += ' '.join([str(cell) for cell in row if cell]) + '\n'
     return text
+
+def extract_text_from_csv(file_data: BytesIO):
+    from csv import reader
+    text = ""
+    for row in reader(file_data.read().decode('utf-8').splitlines()):
+        text += ' '.join(row) + '\n'
+    return text
+
 
 def get_blob(container_name, blob_name):
     blob_service_client = BlobServiceClient(account_url=account_url)
@@ -82,6 +88,18 @@ async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
             print(e)
         
     return AnalyzeResponse(insight=text)
+
+@app.get("/get-all-blobs/{container}")
+async def get_all_blobs(container: str) -> Dict[str, str]:
+    blob_service_client = BlobServiceClient(account_url=account_url)
+    container_client = blob_service_client.get_container_client(container)
+    blobs = container_client.list_blobs()
+    blobs_dict = {}
+    for blob in blobs:
+        blobs_dict[blob.name] = get_blob(container, blob.name).url
+    return blobs_dict
+
+
 
 if __name__ == "__main__":
     print("De preferência, use o comando abaixo para iniciar o servidor:")

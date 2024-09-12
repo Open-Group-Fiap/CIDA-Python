@@ -3,7 +3,7 @@ uvicorn
 azure-storage-blob
 azure-identity
 PyPDF2
-python-docx
+docx2txt
 openpyxl
 httpx
 pydantic
