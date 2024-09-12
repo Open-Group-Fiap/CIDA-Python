@@ -10,8 +10,8 @@ import os
 import dotenv
 from azure.ai.inference import ChatCompletionsClient 
 dotenv.load_dotenv()
-client = inference_client = ChatCompletionsClient(endpoint=os.getenv("AZURE_OPENAI_ENDPOINT") or "", 
-                                                  credential=AzureKeyCredential(os.getenv("AZURE_OPENAI_API_KEY") or "")
+client = inference_client = ChatCompletionsClient(endpoint=os.getenv("AZURE_AI_ENDPOINT") or "", 
+                                                  credential=AzureKeyCredential(os.getenv("AZURE_AI_API_KEY") or "")
                                                   )
 app = FastAPI()
 
