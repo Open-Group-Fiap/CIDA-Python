@@ -6,4 +6,5 @@ PyPDF2
 python-docx
 openpyxl
 httpx
-
+pydantic
+python-multipart
