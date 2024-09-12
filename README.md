@@ -23,7 +23,7 @@ python -m uvicorn main:app --reload
 
 4. Acesse o servidor em `http://localhost:8000/docs`
 
-5. Envie um POST para o servidor com os seguintes parâmetros:
+5. Envie um POST para o servidor no endereço `http://localhost:8000/analyze` com o seguinte corpo:
 
 ```
 {
