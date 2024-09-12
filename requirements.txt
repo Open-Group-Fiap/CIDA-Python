@@ -7,4 +7,5 @@ docx2txt
 openpyxl
 httpx
 pydantic
-python-multipart
+python-dotenv
+azure-ai-inference

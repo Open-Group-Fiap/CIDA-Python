@@ -1,9 +1,18 @@
 from typing import Annotated, Dict, List
+from azure.ai.inference.models import SystemMessage, UserMessage
+from azure.core.credentials import AzureKeyCredential
 from fastapi import FastAPI
 from azure.storage.blob import BlobClient, BlobServiceClient, download_blob_from_url
 from azure.identity import DefaultAzureCredential
 from pydantic import BaseModel
 from io import BytesIO
+import os
+import dotenv
+from azure.ai.inference import ChatCompletionsClient 
+dotenv.load_dotenv()
+client = inference_client = ChatCompletionsClient(endpoint=os.getenv("AZURE_OPENAI_ENDPOINT") or "", 
+                                                  credential=DefaultAzureCredential(),
+                                                  headers={'api-key': os.getenv("AZURE_OPENAI_API_KEY")})
 app = FastAPI()
 
 account_url="https://cidastore.blob.core.windows.net"
@@ -68,9 +77,7 @@ def get_blob(container_name, blob_name):
 
 @app.get("/")
 def read_root():
-    blob = get_blob("teste-container", "2º Ano - Challenge FIAP - 2º Semestre 2024  - Plusoft.pdf")
-    print(blob.url)
-    return {"Hello": "World2", "blob": blob.url}
+    return {"Hello": "World"}
 
 @app.post("/analyze")
 async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
@@ -85,8 +92,13 @@ async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
             text += process_file(converted, blob.blob_name) + "\n"
         except Exception as e:
             print(blob.url)
-            print(e)
-        
+            print(e) 
+    start_phase = "Resuma o seguinte documento e diminua seu tamanho total, mantenha a coesão, os dados e as estatisticas: "
+    response = client.complete(messages=[
+        SystemMessage(content=start_phase),
+        UserMessage(content=text)
+    ])
+    text = response.choices[0].message.content
     return AnalyzeResponse(insight=text)
 
 @app.get("/get-all-blobs/{container}")
