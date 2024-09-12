@@ -3,13 +3,13 @@ from azure.storage.blob import BlobServiceClient
 from azure.identity import DefaultAzureCredential
 app = FastAPI()
 
-account_url="cidastore.blob.core.windows.net"
+account_url="https://cidastore.blob.core.windows.net"
 credential = DefaultAzureCredential()
 
 def get_all_blobs(container_name):
     blob_service_client = BlobServiceClient(account_url=account_url, credential=credential)
     container_client = blob_service_client.get_container_client(container_name)
-    blobs = container_client.list_blobs()
+    blobs = container_client.list_blob_names()
     return blobs
 
 def get_blob(container_name, blob_name):
@@ -20,9 +20,9 @@ def get_blob(container_name, blob_name):
 
 @app.get("/")
 def read_root():
-    blob = get_blob("upload_files", "CP4_JAVA.pdf")
+    blob = get_blob("teste-container", "2º Ano - Challenge FIAP - 2º Semestre 2024  - Plusoft.pdf")
     print(blob.url)
-    blobs = get_all_blobs("upload_files")
+    blobs = get_all_blobs("teste-container")
     for blob in blobs:
         print(blob.name)
     return {"Hello": "World"}
