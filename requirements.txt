@@ -11,3 +11,4 @@ pydantic
 python-dotenv
 azure-ai-inference
 google-generativeai
+requests
