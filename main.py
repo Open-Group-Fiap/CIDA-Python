@@ -10,6 +10,7 @@ import os
 import dotenv
 import requests
 from azure.ai.inference import ChatCompletionsClient
+from fastapi.middleware.cors import CORSMiddleware
 
 dotenv.load_dotenv()
 client = inference_client = ChatCompletionsClient(
@@ -17,6 +18,14 @@ client = inference_client = ChatCompletionsClient(
     credential=AzureKeyCredential(os.getenv("AZURE_AI_API_KEY") or ""),
 )
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 account_url = "https://cidastore.blob.core.windows.net"
 
