@@ -9,11 +9,19 @@ import google.generativeai as genai
 import os
 import dotenv
 from azure.ai.inference import ChatCompletionsClient 
+from fastapi.middleware.cors import CORSMiddleware
 dotenv.load_dotenv()
 client = inference_client = ChatCompletionsClient(endpoint=os.getenv("AZURE_AI_ENDPOINT") or "", 
                                                   credential=AzureKeyCredential(os.getenv("AZURE_AI_API_KEY") or "")
                                                   )
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 account_url="https://cidastore.blob.core.windows.net"
 
