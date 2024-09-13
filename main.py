@@ -29,7 +29,7 @@ app.add_middleware(
 
 account_url = "https://cidastore.blob.core.windows.net"
 
-url_API = "https://api.cidainstitute.com"
+url_API = "http://localhost:5067"
 
 
 class AnalyzeRequest(BaseModel):
@@ -105,7 +105,7 @@ def get_blob(container_name, blob_name):
     return blob_client
 
 
-async def post_resumo(descricao_resumo: str, id_usuario: int):
+async def post_resumo(descricao_resumo, id_usuario):
     response = requests.post(
         f"{url_API}/resumo",
         json={"descricao": descricao_resumo, "idUsuario": id_usuario},
@@ -113,10 +113,10 @@ async def post_resumo(descricao_resumo: str, id_usuario: int):
 
     resumo = response.json()
 
-    return resumo["IdResumo"]
+    return resumo["idResumo"]
 
 
-async def put_arquivo(id_resumo: int, ids_arquivos: List[int]):
+async def put_arquivo(id_resumo, ids_arquivos):
     for i in ids_arquivos:
         requests.put(
             f"{url_API}/arquivo/{i}",
@@ -124,7 +124,7 @@ async def put_arquivo(id_resumo: int, ids_arquivos: List[int]):
         )
 
 
-async def post_insight(descricao_insight: str, id_usuario: int, id_resumo: int):
+async def post_insight(descricao_insight, id_usuario, id_resumo):
     response = requests.post(
         f"{url_API}/insight",
         json={
@@ -163,9 +163,7 @@ async def analyze(data: AnalyzeRequest, responseStatus: Response) -> AnalyzeResp
     text = response.choices[0].message.content
 
     # Post do resumo
-    id_resumo = await post_resumo(
-        text, idUsuario=data.id_usuario, ids_arquivos=data.ids_arquivos
-    )
+    id_resumo = await post_resumo(descricao_resumo=text, id_usuario=data.id_usuario)
     # put do id_resumo nos arquivos
     await put_arquivo(id_resumo, data.ids_arquivos)
 
@@ -178,7 +176,7 @@ async def analyze(data: AnalyzeRequest, responseStatus: Response) -> AnalyzeResp
 
     # Post do insight
     status_code = await post_insight(
-        response.text, id_usuario=data.id_usuario, id_resumo=id
+        response.text, id_usuario=data.id_usuario, id_resumo=id_resumo
     )
 
     if status_code == 201:
