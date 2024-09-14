@@ -3,6 +3,7 @@ from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
 from fastapi import FastAPI
 from azure.storage.blob import BlobClient, BlobServiceClient
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from io import BytesIO
 import google.generativeai as genai
@@ -86,10 +87,13 @@ def get_blob(container_name, blob_name):
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return RedirectResponse(url="/docs")
 
 @app.post("/analyze")
 async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
+    """
+    Analisa um arquivo ou mais arquivos e retorna os insights gerados.
+    """
     blobs: List[BlobClient] = []
     text = ""
     for file_name in data.file_names:
@@ -118,6 +122,9 @@ async def analyze(data: AnalyzeRequest) -> AnalyzeResponse:
 
 @app.get("/get-all-blobs/{container}")
 async def get_all_blobs(container: str) -> Dict[str, str]:
+    """
+    Retorna uma lista de URLs para todos os arquivos dentro de um container.
+    """
     blob_service_client = BlobServiceClient(account_url=account_url)
     container_client = blob_service_client.get_container_client(container)
     blobs = container_client.list_blobs()
