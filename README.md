@@ -1,5 +1,12 @@
 # CIDA - Consulting Insights With Deep Analysis
 
+## Integrantes
+
+- Cauã Alencar Rojas Romero - RM98638
+- Jaci Teixeira Santos – RM99627
+- Leonardo dos Santos Guerra - RM99738
+- Maria Eduarda Ferreira da Mata - RM99004
+
 ## IAs utilizadas
 
 - Phi-3.5 - Instruct Mini
@@ -11,6 +18,7 @@
 A arquitetura de IA do CIDA é baseada em um pipeline de dois estágios, utilizando dois modelos de linguagem diferentes para otimizar o processo de análise de documentos e geração de insights:
 
 1. **Resumo de documentos: Phi-3.5 Instruct Mini**
+
    - O Phi-3.5 Instruct Mini é utilizado para resumir os documentos de entrada.
    - Este modelo foi escolhido devido à sua eficiência em tarefas de resumo e sua capacidade de processar grandes volumes de texto rapidamente.
    - A implementação envolve o uso da API Azure AI, onde o modelo Phi-3.5 é acessado através do `ChatCompletionsClient`.
@@ -38,7 +46,6 @@ A arquitetura de IA do CIDA é baseada em um pipeline de dois estágios, utiliza
 - O resultado final é retornado como uma resposta HTTP contendo os insights gerados.
 
 Esta arquitetura permite que o CIDA processe eficientemente grandes volumes de dados corporativos e produza análises e recomendações de alta qualidade, tornando-o uma ferramenta valiosa para consultoria empresarial baseada em IA.
-
 
 ## Funcionalidades da API
 
@@ -116,6 +123,7 @@ AZURE_AI_API_KEY=YOUR_API_KEY
 AZURE_AI_ENDPOINT=YOUR_ENDPOINT
 GEMINI_API_KEY=YOUR_API_KEY
 ```
+
 (Ou baixe o arquivo que eu enviei na entrega e renomeie para `.env`)
 
 2. Instale as dependências:
@@ -142,4 +150,3 @@ python -m uvicorn main:app --reload
 ```
 
 6. O servidor retornará um objeto JSON com o resultado do processamento do relatório.
-
