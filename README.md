@@ -116,7 +116,7 @@ AZURE_AI_API_KEY=YOUR_API_KEY
 AZURE_AI_ENDPOINT=YOUR_ENDPOINT
 GEMINI_API_KEY=YOUR_API_KEY
 ```
-(Ou baixe o arquivo que eu mandei no teams e renomeie para `.env`)
+(Ou baixe o arquivo que eu enviei na entrega e renomeie para `.env`)
 
 2. Instale as dependências:
 
